@@ -1,0 +1,92 @@
+function checkForm() {
+    document.getElementById("grade_subject_input").value = courseData[courseIndex].course;
+    var student = courseData[courseIndex].students[studentIndex];
+    document.getElementById("sname_input").value = student.name + "(" + student.account + ")";
+}
+
+function show() {
+    var testMenu_over = document.getElementById('testMenu_over');
+    var testMenu = document.getElementById('testMenu');
+
+    testMenu_over.style.display = "block";
+
+    testMenu.style.cssText = "border-color:#B2BFA6; border-right: 0px;border-radius:5px 0px 0px 5px;";
+
+}
+function hide() {
+    var testMenu_over = document.getElementById('testMenu_over');
+    var testMenu = document.getElementById('testMenu');
+    testMenu_over.style.display = "none";
+    testMenu.style.cssText = " border:2px solid green;border-radius:5px;";
+}
+
+function recpost() {
+    console.log(studentIndex);
+    var checked = true;
+    if(courseIndex == -1){
+        checked = false;
+        alert("课程错误或为空，请从下拉框选择");
+    }
+    if(checked && studentIndex == -1){
+        checked = false;
+        alert("学生错误或为空，请从下拉框选择");
+    }
+    if(checked){
+        var data = {
+            //各种要提交的数据
+            "course": courseData[courseIndex].course,
+            "accountNo": courseData[courseIndex].students[studentIndex].account
+        };
+        checkForm();
+        $.ajax({
+            url: "/vosmap/grandientRec",
+            type: "post",
+            data: data,
+            dataType: "json",
+        }).done(function (oResult) {
+            if (oResult.code === 999) {
+                location.href = "/vosmap/login";
+            } else if (oResult.code != 0) {
+                if (oResult.msg != null) {
+                    alert(oResult.msg);
+                } else {
+                    alert("未知错误");
+                }
+            } else {
+                changeColor(oResult.result);
+            }
+        }).fail(function (msg) {
+            alert(msg.value);
+        });
+    }
+}
+
+function doSome(value, node) {
+    if (value == -1) {
+        node.style.backgroundColor = "#C4C0C0";
+    }
+    if (value == 0) {
+        node.style.backgroundColor = "#EF3A3A";
+    }
+    if (value == 1) {
+        node.style.backgroundColor = "#3BD454";
+    }
+}
+function changeColor(arr) {
+    var beforeTest = document.getElementsByClassName('a');
+
+    var test_middle = document.getElementById('test_middle');
+    var afterTest = document.getElementsByClassName('b');
+    var test_end = document.getElementById('test_end');
+    for (var i = 0; i < arr[0].length - 1; i++) {
+        doSome(arr[0][i], beforeTest[i].parentNode);
+
+    }
+    for (var i = 0; i < arr[1].length - 1; i++) {
+        doSome(arr[1][i], afterTest[i].parentNode);
+    }
+
+    doSome(arr[0][8], test_middle);
+    doSome(arr[1][8], test_end);
+
+}
